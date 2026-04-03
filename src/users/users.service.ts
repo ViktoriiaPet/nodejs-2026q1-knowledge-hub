@@ -1,14 +1,24 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import type { User } from 'src/types';
+import { randomUUID } from 'node:crypto';
 
 @Injectable()
 export class UsersService {
   private users: User[] = [];
-  create(createUserDto: CreateUserDto) {
+  create(createUserDto: CreateUserDto): User {
     
-    return 'This action adds a new user';
+    const user: User = {
+    id: randomUUID(),
+    login: createUserDto.login,
+    password: createUserDto.password,
+    role: createUserDto.role ?? 'viewer',
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+  };
+  this.users.push(user);
+  return user;
   }
 
   findAll() {
@@ -16,7 +26,11 @@ export class UsersService {
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} user`;
+    const user = this.users.find(user => id.toString() === user.id)
+    if(!user) {
+      throw new NotFoundException("User don't found")
+    }
+    return user
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
