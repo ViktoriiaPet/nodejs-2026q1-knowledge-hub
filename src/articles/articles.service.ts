@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
-
+import type { Article } from 'src/types';
 @Injectable()
 export class ArticlesService {
+  private articles: Article[] = []
   create(createArticleDto: CreateArticleDto) {
     return 'This action adds a new article';
   }

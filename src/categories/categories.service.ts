@@ -1,15 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { Category } from 'src/types';
 
 @Injectable()
 export class CategoriesService {
+  private categories: Category[] = []
   create(createCategoryDto: CreateCategoryDto) {
     return 'This action adds a new category';
   }
 
   findAll() {
-    return `This action returns all categories`;
+    return this.categories;
   }
 
   findOne(id: number) {

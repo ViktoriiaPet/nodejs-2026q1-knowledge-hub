@@ -1,15 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
+import type { Comment } from 'src/types';
 
 @Injectable()
 export class CommentsService {
+  private comments: Comment[] = []
   create(createCommentDto: CreateCommentDto) {
     return 'This action adds a new comment';
   }
 
   findAll() {
-    return `This action returns all comments`;
+    return this.comments
   }
 
   findOne(id: number) {
