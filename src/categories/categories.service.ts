@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import type { Category } from 'src/types';
@@ -22,7 +22,11 @@ export class CategoriesService {
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} category`;
+     const category = this.categories.find(user => id.toString() === user.id)
+        if(!category) {
+          throw new NotFoundException("User don't found")
+        }
+        return category
   }
 
   update(id: number, updateCategoryDto: UpdateCategoryDto) {

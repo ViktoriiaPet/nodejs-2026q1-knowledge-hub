@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import type { Comment } from 'src/types';
@@ -24,7 +24,11 @@ export class CommentsService {
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} comment`;
+        const comment = this.comments.find(user => id.toString() === user.id)
+        if(!comment) {
+          throw new NotFoundException("User don't found")
+        }
+        return comment
   }
 
   update(id: number, updateCommentDto: UpdateCommentDto) {

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import type { Article } from 'src/types';
@@ -14,7 +14,11 @@ export class ArticlesService {
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} article`;
+         const article = this.articles.find(user => id.toString() === user.id)
+            if(!article) {
+              throw new NotFoundException("User don't found")
+            }
+            return article
   }
 
   update(id: number, updateArticleDto: UpdateArticleDto) {
