@@ -33,8 +33,14 @@ export class UsersService {
     return user
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  update(id: number, updateUserDto: UpdateUserDto) : User {
+    const user = this.users.find(user => id.toString() === user.id)
+    if (!user) {
+      throw new NotFoundException ('User not found')
+    }
+    user.password = updateUserDto.newPassword
+    user.updatedAt = Date.now();
+    return user
   }
 
   remove(id: number) {

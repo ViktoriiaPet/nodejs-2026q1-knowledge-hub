@@ -3,6 +3,7 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import type { Category } from 'src/types';
 import { randomUUID } from 'node:crypto';
+import { strict } from 'node:assert';
 
 @Injectable()
 export class CategoriesService {
@@ -29,8 +30,14 @@ export class CategoriesService {
         return category
   }
 
-  update(id: number, updateCategoryDto: UpdateCategoryDto) {
-    return `This action updates a #${id} category`;
+  update(id: string, updateCategoryDto: UpdateCategoryDto) {
+    const category = this.categories.find(cat => id === cat.id)
+    if (!category) {
+      throw new NotFoundException ('User not found')
+    }
+    Object.assign(category, updateCategoryDto);
+    
+    return category
   }
 
   remove(id: number) {
