@@ -32,7 +32,15 @@ export class CommentsService {
   }
 
   update(id: number, updateCommentDto: UpdateCommentDto) {
-    return `This action updates a #${id} comment`;
+     const comment = this.comments.find(com => id.toString() === com.id)
+    if (!comment) {
+      throw new NotFoundException ('Comment is not found')
+    }
+    if(!updateCommentDto.content) {
+      throw new NotFoundException ('Content is not found')
+    }
+    Object.assign(comment, updateCommentDto);
+    return comment
   }
 
   remove(id: number) {
