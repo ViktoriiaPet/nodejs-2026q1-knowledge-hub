@@ -5,9 +5,11 @@ import type { Category } from 'src/types';
 import { randomUUID } from 'node:crypto';
 import { strict } from 'node:assert';
 import { isUUID } from 'class-validator';
+import { ArticlesService } from 'src/articles/articles.service';
 
 @Injectable()
 export class CategoriesService {
+  constructor(private readonly articleService: ArticlesService) {}
   private categories: Category[] = []
   create(createCategoryDto: CreateCategoryDto) : Category {
     const category: Category = {
@@ -51,6 +53,8 @@ export class CategoriesService {
   if (index === -1) {
     throw new NotFoundException('Category not found');
   }
+
+  this.articleService.nullifyCategory(id);
 
   this.categories.splice(index, 1);
   }

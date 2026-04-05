@@ -1,12 +1,18 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Inject } from '@nestjs/common';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import type { Comment } from 'src/types';
 import { randomUUID } from 'node:crypto';
 import { isUUID } from 'class-validator';
+import { ArticlesService } from 'src/articles/articles.service';
+import { forwardRef } from '@nestjs/common';
 
 @Injectable()
 export class CommentsService {
+   constructor(
+    @Inject(forwardRef(() => ArticlesService))
+    private readonly articleService: ArticlesService,
+  ) {}
   private comments: Comment[] = []
   create(createCommentDto: CreateCommentDto): Comment {
     const comment: Comment = {
@@ -57,4 +63,12 @@ export class CommentsService {
 
   this.comments.splice(index, 1);
   }
+
+  deleteByUser(userId: string) {
+  this.comments = this.comments.filter(c => c.authorId !== userId);
+}
+
+deleteByArticle(articleId: string) {
+  this.comments = this.comments.filter(c => c.articleId !== articleId);
+}
 }
