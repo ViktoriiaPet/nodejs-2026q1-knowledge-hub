@@ -6,12 +6,9 @@ import { CommentsModule } from 'src/comments/comments.module';
 import { forwardRef } from '@nestjs/common';
 
 @Module({
-  imports: [
-    forwardRef(() => ArticlesModule),
-    forwardRef(() => CommentsModule),
-  ],
+  imports: [forwardRef(() => ArticlesModule), forwardRef(() => CommentsModule)],
   controllers: [UsersController],
   providers: [UsersService],
-  exports: [UsersService]
+  exports: [UsersService],
 })
 export class UsersModule {}

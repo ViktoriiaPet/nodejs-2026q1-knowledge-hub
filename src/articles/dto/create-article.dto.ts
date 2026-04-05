@@ -1,19 +1,19 @@
-import { IsString, IsNotEmpty, IsOptional, IsIn } from "class-validator";
+import { IsString, IsNotEmpty, IsOptional, IsIn } from 'class-validator';
 export class CreateArticleDto {
-        @IsString()
-        @IsNotEmpty()
-        title: string;
-    
-        @IsString()
-        @IsNotEmpty()
-        content: string;
-    
-        @IsOptional()
-        @IsIn(['draft','published', 'archived'])
-        status?: 'draft' | 'published' | 'archived'
+  @IsString()
+  @IsNotEmpty()
+  title: string;
 
-        @IsOptional()
-        authorId: string | null;
-        categoryId: string | null;
-        tags: string[] | [];
+  @IsString()
+  @IsNotEmpty()
+  content: string;
+
+  @IsOptional()
+  @IsIn(['draft', 'published', 'archived'])
+  status?: 'draft' | 'published' | 'archived';
+
+  @IsOptional()
+  authorId: string | null;
+  categoryId: string | null;
+  tags: string[] | [];
 }

@@ -1,9 +1,20 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, HttpCode } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Put,
+  Param,
+  Delete,
+  HttpCode,
+  Query,
+} from '@nestjs/common';
 import { ArticlesService } from './articles.service';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
+import { GetArticlesQueryDto } from './dto/get-articles-query.dto';
 
-@Controller('articles')
+@Controller('article')
 export class ArticlesController {
   constructor(private readonly articlesService: ArticlesService) {}
 
@@ -13,18 +24,18 @@ export class ArticlesController {
   }
 
   @Get()
-  findAll() {
-    return this.articlesService.findAll();
+  findAll(@Query() query: GetArticlesQueryDto) {
+    return this.articlesService.findAll(query);
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.articlesService.findOne(+id);
+    return this.articlesService.findOne(id);
   }
 
-  @Patch(':id')
+  @Put(':id')
   update(@Param('id') id: string, @Body() updateArticleDto: UpdateArticleDto) {
-    return this.articlesService.update(+id, updateArticleDto);
+    return this.articlesService.update(id, updateArticleDto);
   }
 
   @HttpCode(204)

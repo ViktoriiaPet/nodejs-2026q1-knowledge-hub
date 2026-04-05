@@ -7,6 +7,14 @@ export interface User {
   updatedAt: number;
 }
 
+export interface UserWithoutPassword {
+  id: string; // uuid v4
+  login: string;
+  role: 'admin' | 'editor' | 'viewer';
+  createdAt: number;
+  updatedAt: number;
+}
+
 export interface Article {
   id: string; // uuid v4
   title: string;
