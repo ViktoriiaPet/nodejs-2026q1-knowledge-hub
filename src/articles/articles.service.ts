@@ -1,9 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
 import type { Article } from 'src/types';
 import { randomUUID } from 'node:crypto';
 import { ArticlesModule } from './articles.module';
+import { isUUID } from 'class-validator';
 @Injectable()
 export class ArticlesService {
   private articles: Article[] = []
@@ -44,7 +45,17 @@ export class ArticlesService {
     return article
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} article`;
+  remove(id: string) : void {
+     if (!isUUID(id)) {
+    throw new BadRequestException('Invalid articleId');
+  }
+
+  const index = this.articles.findIndex(a => a.id === id);
+
+  if (index === -1) {
+    throw new NotFoundException('Article not found');
+  }
+
+  this.articles.splice(index, 1);
   }
 }

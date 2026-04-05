@@ -1,9 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import type { Category } from 'src/types';
 import { randomUUID } from 'node:crypto';
 import { strict } from 'node:assert';
+import { isUUID } from 'class-validator';
 
 @Injectable()
 export class CategoriesService {
@@ -40,7 +41,17 @@ export class CategoriesService {
     return category
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} category`;
+  remove(id: string) : void {
+     if (!isUUID(id)) {
+    throw new BadRequestException('Invalid categoryId');
+  }
+
+  const index = this.categories.findIndex(c => c.id === id);
+
+  if (index === -1) {
+    throw new NotFoundException('Category not found');
+  }
+
+  this.categories.splice(index, 1);
   }
 }

@@ -1,8 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import type { Comment } from 'src/types';
 import { randomUUID } from 'node:crypto';
+import { isUUID } from 'class-validator';
 
 @Injectable()
 export class CommentsService {
@@ -43,7 +44,17 @@ export class CommentsService {
     return comment
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} comment`;
+  remove(id: string) {
+  if (!isUUID(id)) {
+    throw new BadRequestException('Invalid commentId');
+  }
+
+  const index = this.comments.findIndex(c => c.id === id);
+
+  if (index === -1) {
+    throw new NotFoundException('Comment not found');
+  }
+
+  this.comments.splice(index, 1);
   }
 }
