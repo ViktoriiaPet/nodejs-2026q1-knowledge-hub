@@ -82,3 +82,118 @@ npm run format
 Press <kbd>F5</kbd> to debug.
 
 For more information, visit: https://code.visualstudio.com/docs/editor/debugging
+
+# Knowledge Hub API — Docker Setup
+
+## Docker Image
+
+https://hub.docker.com/r/viktoriiapine/knowledge-hub
+
+---
+
+## Requirements
+
+* Docker
+* Docker Compose
+
+---
+
+## Environment Variables
+
+Create a `.env` file in the root directory based on `.env.example`:
+
+```
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=knowledgehub
+POSTGRES_HOST=db
+POSTGRES_PORT=5432
+```
+
+---
+
+## Install
+
+Install dependencies locally (optional, for development):
+
+```
+npm install
+```
+
+---
+
+## Run the project
+
+Build and start all services:
+
+```
+docker compose up --build
+```
+
+Application will be available at:
+http://localhost:4000
+
+---
+
+## Optional: Adminer
+
+Run Adminer for database access:
+
+```
+docker compose --profile debug up adminer
+```
+
+Open:
+http://localhost:8080
+
+Connection settings:
+
+* System: PostgreSQL
+* Server: db
+* Username: postgres
+* Password: postgres
+* Database: knowledgehub
+
+---
+
+## Services
+
+app:
+
+* NestJS API
+* Runs on port 4000
+* Built using multi-stage Dockerfile
+* Runs as non-root user
+* Healthcheck configured
+
+db:
+
+* PostgreSQL 16 (alpine)
+* Persistent data via named volume
+* Healthcheck configured
+
+adminer (optional):
+
+* Database UI for local debugging
+
+---
+
+## Security Scan
+
+Image scanned using Trivy.
+
+Summary:
+
+* Critical: 0
+* High: 1
+* Medium: 1
+* Low: 0
+
+---
+
+## Image Size
+
+~326MB
+
+---
+
