@@ -6,8 +6,6 @@ import {
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import type { User } from 'src/types';
-import { randomUUID } from 'node:crypto';
-import { isUUID } from 'class-validator';
 import { ArticlesService } from 'src/articles/articles.service';
 import { CommentsService } from 'src/comments/comments.service';
 import { UserWithoutPassword } from 'src/types';
@@ -21,8 +19,7 @@ export class UsersService {
     private readonly articleService: ArticlesService,
     private readonly commentService: CommentsService,
   ) {}
-
-  private users: User[] = [];
+  
 async create(createUserDto: CreateUserDto): Promise<UserWithoutPassword> {
   const user = await this.prisma.user.create({
     data: {

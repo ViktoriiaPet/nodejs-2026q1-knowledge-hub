@@ -12,109 +12,107 @@ import { isUUID } from 'class-validator';
 import { CommentsService } from 'src/comments/comments.service';
 import { forwardRef } from '@nestjs/common';
 import { GetArticlesQueryDto } from './dto/get-articles-query.dto';
+import { PrismaService } from 'prisma/prisma.service';
 @Injectable()
 export class ArticlesService {
   constructor(
     @Inject(forwardRef(() => CommentsService))
+    private prisma: PrismaService,
     private readonly commentService: CommentsService,
   ) {}
 
   private articles: Article[] = [];
-  create(createArticleDto: CreateArticleDto) {
-    const article: Article = {
-      id: randomUUID(),
-      title: createArticleDto.title,
-      content: createArticleDto.content,
-      authorId: createArticleDto.authorId,
-      status: createArticleDto.status ?? 'draft',
-      categoryId: createArticleDto.categoryId,
-      tags: createArticleDto.tags ?? [],
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    };
-    this.articles.push(article);
-    return article;
+  async create(dto: CreateArticleDto) {
+  return this.prisma.article.create({
+    data: {
+      title: dto.title,
+      content: dto.content,
+      status: dto.status ?? 'draft',
+      authorId: dto.authorId ?? null,
+      categoryId: dto.categoryId ?? null,
+
+      tags: {
+        create: (dto.tags ?? []).map((name) => ({
+          tag: {
+            connectOrCreate: {
+              where: { name },
+              create: { name },
+            },
+          },
+        })),
+      },
+    },
+  });
+}
+
+async findAll(query: GetArticlesQueryDto) {
+  const { status, categoryId, tags, limit, offset } = query;
+
+  return this.prisma.article.findMany({
+    where: {
+      status,
+      categoryId,
+      ...(tags?.length && {
+        tags: {
+          some: {
+            tag: {
+              name: { in: tags },
+            },
+          },
+        },
+      }),
+    },
+    skip: offset ?? 0,
+    take: limit ?? undefined,
+  });
+}
+
+async findOne(id: string) {
+  const article = await this.prisma.article.findUnique({
+    where: { id },
+  });
+
+  if (!article) {
+    throw new NotFoundException('Article not found');
   }
 
-  findAll(query: GetArticlesQueryDto): Article[] {
-    const { authorId, title, status, categoryId, tags, limit, offset } = query;
+  return article;
+}
 
-    let result = [...this.articles];
+async update(id: string, dto: UpdateArticleDto) {
+  return this.prisma.article.update({
+    where: { id },
+    data: {
+      ...dto,
+      ...(dto.tags && {
+        tags: {
+          deleteMany: {},
+          create: dto.tags.map((name:string) => ({
+            tag: {
+              connectOrCreate: {
+                where: { name },
+                create: { name },
+              },
+            },
+          })),
+        },
+      }),
+    },
+  });
+}
 
-    if (authorId !== undefined) {
-      result = result.filter((article) => article.authorId === authorId);
-    }
+async remove(id: string) {
+  const article = await this.prisma.article.findUnique({
+    where: { id },
+  });
 
-    if (title) {
-      const search = title.toLowerCase();
-      result = result.filter((article) =>
-        article.title.toLowerCase().includes(search),
-      );
-    }
-
-    if (status) {
-      result = result.filter((article) => article.status === status);
-    }
-
-    if (categoryId) {
-      result = result.filter((article) => article.categoryId === categoryId);
-    }
-
-    if (tags && tags.length > 0) {
-      result = result.filter((article) =>
-        article.tags.some((tag) => tags.includes(tag)),
-      );
-    }
-
-    const safeOffset = offset && offset > 0 ? offset : 0;
-    const safeLimit = limit && limit > 0 ? limit : result.length;
-
-    result = result.slice(safeOffset, safeOffset + safeLimit);
-
-    return result;
+  if (!article) {
+    throw new NotFoundException('Article not found');
   }
 
-  findOne(id: string) {
-    if (!isUUID(id)) {
-      throw new BadRequestException('Invalid id');
-    }
-
-    const article = this.articles.find((art) => id.toString() === art.id);
-    if (!article) {
-      throw new NotFoundException("User don't found");
-    }
-    return article;
-  }
-
-  update(id: string, updateArticleDto: UpdateArticleDto) {
-    if (!isUUID(id)) {
-      throw new BadRequestException('Invalid id');
-    }
-
-    const article = this.articles.find((art) => id.toString() === art.id);
-    if (!article) {
-      throw new NotFoundException('User not found');
-    }
-    Object.assign(article, updateArticleDto);
-    return article;
-  }
-
-  remove(id: string): void {
-    if (!isUUID(id)) {
-      throw new BadRequestException('Invalid articleId');
-    }
-
-    const index = this.articles.findIndex((a) => a.id === id);
-
-    if (index === -1) {
-      throw new NotFoundException('Article not found');
-    }
-
-    this.commentService.deleteByArticle(id);
-
-    this.articles.splice(index, 1);
-  }
-
+  await this.prisma.article.delete({ where: { id } });
+}
+/*
   nullifyAuthor(userId: string) {
     this.articles.forEach((article) => {
       if (article.authorId === userId) {
@@ -130,4 +128,5 @@ export class ArticlesService {
       }
     });
   }
+    */
 }
